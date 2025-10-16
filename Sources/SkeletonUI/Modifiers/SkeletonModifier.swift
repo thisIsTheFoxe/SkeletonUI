@@ -13,10 +13,9 @@ public struct SkeletonModifier: ViewModifier {
             .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
             .clipShape(SkeletonShape(shape))
             .animation(animation.type, value: animate)
-            .onAppear {
-                DispatchQueue.main.async {
-                    animate.toggle()
-                }
+            .task {
+                guard !animate else { return }
+                animate.toggle() 
             }
     }
 }
