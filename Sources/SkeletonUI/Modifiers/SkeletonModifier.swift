@@ -12,10 +12,11 @@ public struct SkeletonModifier: ViewModifier {
         content
             .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
             .clipShape(SkeletonShape(shape))
-            .animation(animation.type, value: animate)
             .startOnce {
                 guard !animate else { return }
-                animate.toggle() 
+                withAnimation(animation.type) {
+                    animate.toggle() 
+                }
             }
     }
 }
