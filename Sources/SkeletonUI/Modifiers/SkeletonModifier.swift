@@ -12,11 +12,22 @@ public struct SkeletonModifier: ViewModifier {
         content
             .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
             .clipShape(SkeletonShape(shape))
-            .animation(animation.type, value: animate)
-            .onAppear {
-                DispatchQueue.main.async {
-                    animate.toggle()
+            .startOnce {
+                guard !animate else { return }
+                withAnimation(animation.type) {
+                    animate.toggle() 
                 }
             }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func startOnce(_ action: @escaping () -> Void) -> some View {
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            self.task { action() }
+        } else {
+            self.onAppear { DispatchQueue.main.async { action() } }
+        }
     }
 }
