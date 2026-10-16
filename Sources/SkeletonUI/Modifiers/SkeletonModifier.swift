@@ -11,12 +11,11 @@ public struct SkeletonModifier: ViewModifier {
     public func body(content: Content) -> some View {
         content
             .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
+            .animation(animation.type, value: animate)
             .clipShape(SkeletonShape(shape))
             .startOnce {
                 guard !animate else { return }
-                withAnimation(animation.type) {
-                    animate.toggle() 
-                }
+                animate.toggle()
             }
     }
 }
