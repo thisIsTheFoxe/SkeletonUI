@@ -9,14 +9,23 @@ public struct SkeletonModifier: ViewModifier {
     @State var animate: Bool = false
 
     public func body(content: Content) -> some View {
-        content
-            .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
-            .animation(animation.type, value: animate)
-            .clipShape(SkeletonShape(shape))
-            .startOnce {
-                guard !animate else { return }
-                animate.toggle()
+        Group {
+            if #available(iOS 17, macOS 14, tvOS 17.0, watchOS 10.0) {
+                content
+                .animation(animation.type) { view in 
+                    view.modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
+                }
+            } else {
+            content
+                .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
+                .animation(animation.type, value: animate)
             }
+        }
+        .clipShape(SkeletonShape(shape))
+        .startOnce {
+            guard !animate else { return }
+            animate.toggle()
+        }
     }
 }
 
