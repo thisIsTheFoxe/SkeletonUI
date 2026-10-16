@@ -1,7 +1,7 @@
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct SkeletonForEach<Data, Content>: View where Data: RandomAccessCollection, Data.Element: Identifiable, Content: View {
+public struct SkeletonForEach<Data, Content>: View where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
     private let data: Data
     private let quantity: Int
     private let content: (Bool, Data.Element?) -> Content
