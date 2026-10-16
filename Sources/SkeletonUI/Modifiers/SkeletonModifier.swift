@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct SkeletonModifier: ViewModifier {
@@ -7,27 +6,29 @@ public struct SkeletonModifier: ViewModifier {
     let animation: AnimationType
     let appearance: AppearanceType
     @State var animate: Bool = false
+    @State private var startDate = Date()
 
     public func body(content: Content) -> some View {
-        Group {
-            if #available(iOS 17, macOS 14, tvOS 17.0, watchOS 10.0, *) {
-                content
-                .animation(animation.type) { view in 
-                    view.modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
-                }
-            } else {
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            // Drive the shimmer phase from the clock instead of a `repeatForever` transaction,
+            // so the animation can never leak onto layout changes (ours or the host app's).
+            TimelineView(.animation(paused: animation == .none)) { context in
+                content.modifier(SkeletonAnimatableModifier(
+                    animation.phase(at: context.date.timeIntervalSince(startDate)),
+                    appearance
+                ))
+            }
+            .clipShape(SkeletonShape(shape))
+        } else {
             content
                 .modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
                 .animation(animation.type, value: animate)
-            }
-        }
-        .clipShape(SkeletonShape(shape))
-        .startOnce {
-            guard !animate else { return }
-            animate.toggle()
+                .clipShape(SkeletonShape(shape))
+                .onAppear { DispatchQueue.main.async { animate = true } }
         }
     }
 }
+
 
 extension View {
     @ViewBuilder
