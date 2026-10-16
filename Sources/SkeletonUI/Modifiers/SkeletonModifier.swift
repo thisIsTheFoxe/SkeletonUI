@@ -10,7 +10,7 @@ public struct SkeletonModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         Group {
-            if #available(iOS 17, macOS 14, tvOS 17.0, watchOS 10.0) {
+            if #available(iOS 17, macOS 14, tvOS 17.0, watchOS 10.0, *) {
                 content
                 .animation(animation.type) { view in 
                     view.modifier(SkeletonAnimatableModifier(animate ? 1 : 0, appearance))
